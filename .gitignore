@@ -1,2 +1,4 @@
 hello.go
 __pycache__/
+go.mod
+go.sum
