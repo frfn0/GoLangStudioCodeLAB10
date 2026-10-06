@@ -1,4 +1,16 @@
-hello.go
+# Собранные бинарники Go
+*.exe
+task2/main
+task4/go-service/go-service
+task6/go-service/go-service
+
+# Python
 __pycache__/
-go.mod
-go.sum
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Прочее
+.env
