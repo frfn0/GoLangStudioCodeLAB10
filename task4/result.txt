@@ -1,0 +1,36 @@
+Задание 4. FastAPI -> Go-сервис: фактический вывод
+==================================================
+
+Дата проверки: 2026-10-06
+Запуск: Go-сервис на :8080, FastAPI-сервис на :8000 (uvicorn)
+
+1. Проверка доступности Go-сервиса
+---------------------------------
+> curl http://127.0.0.1:8000/ping-go
+{"go_status":"pong"}
+
+2. Успешная передача данных из Python в Go
+------------------------------------------
+> curl -X POST http://127.0.0.1:8000/process-user \
+       -H "Content-Type: application/json" \
+       -d '{"user_id":1,"name":"Alice","age":30}'
+{"status":"ok","message":"Processed user Alice"}
+
+3. Отказ на невалидных данных (валидация Pydantic в FastAPI)
+-------------------------------------------------------------
+> curl -X POST http://127.0.0.1:8000/process-user \
+       -H "Content-Type: application/json" \
+       -d '{"user_id":1,"name":"","age":300}'
+{"detail":[{"type":"string_too_short","loc":["body","name"],"msg":"String should have at least 1 character","input":"","ctx":{"min_length":1}},{"type":"less_than_equal","loc":["body","age"],"msg":"Input should be less than or equal to 150","input":300,"ctx":{"le":150}}]}
+HTTP 422
+
+Цепочка запроса
+---------------
+curl -> POST /process-user (FastAPI, :8000)
+      -> валидация Pydantic (422 при нарушении)
+      -> httpx.AsyncClient -> POST /data (Go-сервис, :8080)
+      -> JSON-ответ Go
+      -> JSON-ответ клиенту
+
+Итог: Python-сервис успешно вызывает Go-сервис по HTTP, complex JSON-структура
+(UserRequest -> UserResponse) передаётся в обе стороны без потерь.
